@@ -20,7 +20,7 @@ Output:
         "listing_title": "2018 Honda Civic EX",
         "year": 2018,
         "make": "Honda",
-        "model": ["Civic", "CR-V"],
+        "model": "Civic",
         "trim": "EX",
         "price": "$20995",
         "miles": 16421,
@@ -45,7 +45,7 @@ from ksl_auto import ksl_auto_search
 # Note, filter values can be lists or strings, any filter can also be omitted
 filters = {
         "make": "Honda",
-        "model": "Civic",
+        "model": ["Civic", "CR-V"],
         "trim": "DX",
         "priceFrom": "10",
         "priceTo": "100000",
