@@ -20,7 +20,7 @@ Output:
         "listing_title": "2018 Honda Civic EX",
         "year": 2018,
         "make": "Honda",
-        "model": "Civic",
+        "model": ["Civic", "CR-V"],
         "trim": "EX",
         "price": "$20995",
         "miles": 16421,
