@@ -138,7 +138,7 @@ def ksl_auto_search(keyword: str = None, filters: dict = None, page: int = 1) ->
         seller_type  = listing["sellerType"]
         new_or_used  = listing["newUsed"]
 
-        timestamp = listing["createTime"]
+        timestamp = listing["displayTime"]
         time_created = datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 
