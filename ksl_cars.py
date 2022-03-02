@@ -46,9 +46,7 @@ def get_makes_models_trims(make: str = None, model: str = None) -> list:
         return trims
 
     # return all makes if nothing defined
-    makes = list()
-    for m in cars:
-        makes.append(m)
+    makes = [make for make in cars]
     return makes
 
 
