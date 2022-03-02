@@ -1,4 +1,4 @@
-# ksl_auto_scrape_api
+# ksl_cars_scraper_api
 
 Pull KSL car listings using the API.
 
@@ -6,11 +6,12 @@ Dependencies:
 - Requests
 
 Example (keyword) usage and output:
+
 ```python
-from ksl_auto import ksl_auto_search
+from ksl_cars import ksl_cars_search
 import json
 
-listings = ksl_auto_search(keyword="Honda civic", page=1)
+listings = ksl_cars_search(keyword="Honda civic", page=1)
 print(json.dumps(listings, indent=4))
 ```
 Output: 
@@ -39,27 +40,28 @@ Output:
 }
 ```
 Usage with filters:
+
 ```python
-from ksl_auto import ksl_auto_search
+from ksl_cars import ksl_cars_search
 
 # Note, filter values can be lists or strings, any filter can also be omitted
 filters = {
-        "make": "Honda",
-        "model": ["Civic", "CR-V"],
-        "trim": "DX",
-        "priceFrom": "10",
-        "priceTo": "100000",
-        "mileageFrom": "0",
-        "mileageTo": "100000",
-        "sellerType": ["For Sale By Owner", "Dealership"],
-        "newUsed": ["New", "Used", "Certified"],
-        "transmission": "Manual",
-        "fuel": "Gasoline",
-        "drive": "FWD",
-        "titleType": "Clean Title"
+    "make"        : "Honda",
+    "model"       : ["Civic", "CR-V"],
+    "trim"        : "DX",
+    "priceFrom"   : "10",
+    "priceTo"     : "100000",
+    "mileageFrom" : "0",
+    "mileageTo"   : "100000",
+    "sellerType"  : ["For Sale By Owner", "Dealership"],
+    "newUsed"     : ["New", "Used", "Certified"],
+    "transmission": "Manual",
+    "fuel"        : "Gasoline",
+    "drive"       : "FWD",
+    "titleType"   : "Clean Title"
 }
 
-listings = ksl_auto_search(filters=filters)
+listings = ksl_cars_search(filters=filters)
 ```
 Allowed values for various filters (case sensitive):
 ```
@@ -71,8 +73,9 @@ drive:        "2-Wheel Drive", "4-Wheel Drive", "AWD", "FWD", "RWD"
 titleType:    "Clean Title", "Dismantled Title", "Not Specified", "Rebuilt/Reconstructed Title", "Salvage Title"
 ```
 Get all available makes, models, and trims:
+
 ```python
-from ksl_auto import get_makes_models_trims
+from ksl_cars import get_makes_models_trims
 
 # Returns list of all available makes
 makes = get_makes_models_trims()

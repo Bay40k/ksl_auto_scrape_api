@@ -52,7 +52,7 @@ def get_makes_models_trims(make: str = None, model: str = None) -> list:
     return makes
 
 
-def ksl_auto_search(keyword: str = None, filters: dict = None, page: int = 1) -> dict:
+def ksl_cars_search(keyword: str = None, filters: dict = None, page: int = 1) -> dict:
     """
     Returns dictionary of car listings per given keyword/filters
     """
@@ -173,5 +173,5 @@ if __name__ == "__main__":
     # Example code
     import json
 
-    listings = ksl_auto_search(keyword="Honda civic", page=1)
+    listings = ksl_cars_search(keyword="Honda civic", page=1)
     print(json.dumps(listings, indent=4))
