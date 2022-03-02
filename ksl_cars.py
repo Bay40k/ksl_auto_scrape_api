@@ -33,16 +33,12 @@ def get_makes_models_trims(make: str = None, model: str = None) -> list:
 
     # return models if make defined
     if make and not model:
-        models = list()
-        for m in cars[make]:
-            models.append(m)
+        models = [model for model in cars[make]]
         return models
 
     # return trims if make and model defined
     if make and model:
-        trims = list()
-        for t in cars[make][model]:
-            trims.append(t)
+        trims = [trim for trim in cars[make][model]]
         return trims
 
     # return all makes if nothing defined
