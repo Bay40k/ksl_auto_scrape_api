@@ -3,9 +3,7 @@ import VehiclesList from "./VehiclesList";
 import FilterForm from "./FilterForm";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Pagination from "@mui/material/Pagination";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 
 const App = () => {
   const [vehicles, setVehicles] = useState([]);
@@ -23,7 +21,7 @@ const App = () => {
       const queryParams = new URLSearchParams(filters);
       queryParams.append("page", page);
 
-      const response = await fetch(`http://127.0.0.1:4000/api/?${queryParams}`);
+      const response = await fetch(`/api/?${queryParams}`);
       const data = await response.json();
       setVehicles(data);
     } catch (error) {

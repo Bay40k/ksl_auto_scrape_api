@@ -66,7 +66,7 @@ const FilterForm = ({
     const fetchMakes = async () => {
       try {
         const response = await fetch(
-          "http://127.0.0.1:4000/api/makes-models-trims/"
+          "/api/makes-models-trims/"
         );
         const data = await response.json();
         setMakes(data);
@@ -82,7 +82,7 @@ const FilterForm = ({
     const fetchModels = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:4000/api/makes-models-trims/?make=${filters.make}`
+          `/api/makes-models-trims/?make=${filters.make}`
         );
         const data = await response.json();
         setModels(data);
@@ -100,7 +100,7 @@ const FilterForm = ({
     const fetchTrims = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:4000/api/makes-models-trims/?make=${filters.make}&model=${filters.model}`
+          `/api/makes-models-trims/?make=${filters.make}&model=${filters.model}`
         );
         const data = await response.json();
         setTrims(data);
