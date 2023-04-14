@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from ksl_cars import ksl_cars_search, get_makes_models_trims
+from ksl_cars import ksl_cars_search, get_makes_models_trims, semicolonize
 
 app = Flask(__name__)
 CORS(app)
@@ -32,6 +32,7 @@ def search_vehicles():
         filter_value = request.args.get(filter_name, None)
         if filter_value:
             filters[filter_name] = filter_value
+    print(filters)
 
     listings = ksl_cars_search(keyword=keyword, filters=filters, page=page)
     if "error" in listings:

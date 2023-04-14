@@ -12,18 +12,33 @@ const FilterForm = ({
   fetchVehicles,
   handleNextPage,
   handlePrevPage,
-  page
+  page,
 }) => {
   const handleFilterChange = (event) => {
+    const { name, value } = event.target;
     setFilters({
       ...filters,
-      [event.target.name]: event.target.value,
+      [name]: value,
     });
+
+    if (name === "model") {
+      setSelectedModels(value);
+    }
   };
 
   const handleFilterSubmit = (event) => {
     event.preventDefault();
-    fetchVehicles();
+
+    const updatedFilters = { ...filters };
+    const arrayFields = ["make", "model", "trim"];
+
+    arrayFields.forEach((field) => {
+      if (updatedFilters[field]) {
+        updatedFilters[field] = updatedFilters[field].join(";");
+      }
+    });
+
+    fetchVehicles(updatedFilters);
   };
 
   const renderTextField = (label, name) => (
@@ -38,14 +53,15 @@ const FilterForm = ({
     />
   );
 
-  const renderSelectField = (label, name, options) => (
+  const renderSelectField = (label, name, options, multiple = false) => (
     <FormControl fullWidth variant="outlined" size="small">
       <InputLabel>{label}</InputLabel>
       <Select
         label={label}
         name={name}
-        value={filters[name]}
+        value={filters[name] || []}
         onChange={handleFilterChange}
+        multiple={multiple}
       >
         <MenuItem value="">
           <em>None</em>
@@ -58,16 +74,20 @@ const FilterForm = ({
       </Select>
     </FormControl>
   );
+
   const [makes, setMakes] = useState([]);
   const [models, setModels] = useState([]);
   const [trims, setTrims] = useState([]);
+  const [selectedModels, setSelectedModels] = useState([]);
+
+  useEffect(() => {
+    setSelectedModels(filters.model);
+  }, [filters.model]);
 
   useEffect(() => {
     const fetchMakes = async () => {
       try {
-        const response = await fetch(
-          "/api/makes-models-trims/"
-        );
+        const response = await fetch("/api/makes-models-trims/");
         const data = await response.json();
         setMakes(data);
       } catch (error) {
@@ -78,52 +98,87 @@ const FilterForm = ({
     fetchMakes();
   }, []);
 
+  // Fetching models for multiple selected makes
   useEffect(() => {
     const fetchModels = async () => {
       try {
-        const response = await fetch(
-          `/api/makes-models-trims/?make=${filters.make}`
+        const modelsResponse = await Promise.all(
+          filters.make.map(async (make) => {
+            const response = await fetch(
+              `/api/makes-models-trims/?make=${make}`
+            );
+            const data = await response.json();
+            return data;
+          })
         );
-        const data = await response.json();
-        setModels(data);
+
+        const allModels = modelsResponse.flat();
+        setModels(allModels);
       } catch (error) {
         console.error("Error fetching models:", error);
       }
     };
 
-    if (filters.make) {
+    if (filters.make && filters.make.length) {
       fetchModels();
     }
   }, [filters.make]);
 
+  // Fetching trims for multiple selected makes and models
   useEffect(() => {
     const fetchTrims = async () => {
       try {
-        const response = await fetch(
-          `/api/makes-models-trims/?make=${filters.make}&model=${filters.model}`
+        const trimsData = await Promise.all(
+          selectedModels.map(async (model) => {
+            const make = models.find((m) => m.name === model)?.make;
+            if (!make) return [];
+            const response = await fetch(
+              `/api/makes-models-trims/?make=${make}&model=${model}`
+            );
+            const data = await response.json();
+            return data;
+          })
         );
-        const data = await response.json();
-        setTrims(data);
+
+        const combinedTrims = trimsData.flat();
+        setTrims(combinedTrims);
       } catch (error) {
         console.error("Error fetching trims:", error);
       }
     };
 
-    if (filters.make && filters.model) {
+    if (
+      filters.make &&
+      filters.make.length > 0 &&
+      selectedModels &&
+      selectedModels.length > 0
+    ) {
       fetchTrims();
+    } else {
+      setTrims([]);
     }
-  }, [filters.make, filters.model]);
+  }, [filters.make, selectedModels, models]);
+
+  useEffect(() => {
+    setFilters({
+      ...filters,
+      make: filters.make || [],
+      model: filters.model || [],
+      trim: filters.trim || [],
+    });
+  }, []);
+
   return (
     <Box component="form" onSubmit={handleFilterSubmit} sx={{ mt: 2, mb: 4 }}>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Make", "make", makes)}
+          {renderSelectField("Make", "make", makes, true)}
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Model", "model", models)}
+          {renderSelectField("Model", "model", models, true)}
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Trim", "trim", trims)}
+          {renderSelectField("Trim", "trim", trims, true)}
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           {renderTextField("Year From", "yearFrom")}
@@ -195,7 +250,12 @@ const FilterForm = ({
       </Grid>
       <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
         <ButtonGroup>
-          <Button onClick={handlePrevPage} variant="contained" color="primary" disabled={page === 1} >
+          <Button
+            onClick={handlePrevPage}
+            variant="contained"
+            color="primary"
+            disabled={page === 1}
+          >
             Previous
           </Button>
           <Button type="submit" variant="contained" color="primary">

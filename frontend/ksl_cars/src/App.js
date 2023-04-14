@@ -16,9 +16,9 @@ const App = () => {
   }, [page]);
 
 
-  const fetchVehicles = async () => {
+  const fetchVehicles = async (updatedFilters = filters) => {
     try {
-      const queryParams = new URLSearchParams(filters);
+      const queryParams = new URLSearchParams(updatedFilters);
       queryParams.append("page", page);
       setIsLoading(true);
       const response = await fetch(`/api/?${queryParams}`);
@@ -28,7 +28,7 @@ const App = () => {
     } catch (error) {
       console.error('Error fetching vehicles:', error);
     }
-  };
+  };  
 
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);
