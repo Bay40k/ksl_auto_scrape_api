@@ -68,6 +68,8 @@ def ksl_cars_search(keyword: str = None, filters: dict = None, page: int = 1) ->
         "priceFrom",
         "mileageFrom",
         "mileageTo",
+        "yearFrom",
+        "yearTo",
         "trim",
         "transmission",
         "keyword",

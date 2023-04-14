@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from ksl_cars import ksl_cars_search
+from ksl_cars import ksl_cars_search, get_makes_models_trims
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +21,8 @@ def search_vehicles():
         "priceFrom",
         "mileageFrom",
         "mileageTo",
+        "yearFrom",
+        "yearTo",
         "trim",
         "transmission",
         "fuel",
@@ -29,9 +31,11 @@ def search_vehicles():
     ]:
         filter_value = request.args.get(filter_name, None)
         if filter_value:
-            filters[filter_name] = filter_value.split(";")
+            filters[filter_name] = filter_value
 
     listings = ksl_cars_search(keyword=keyword, filters=filters, page=page)
+    if "error" in listings:
+        return jsonify({"error": listings["error"]})
     listings_list = list(listings.values())
 
     # Remove the $ sign from the price field for each vehicle
@@ -40,6 +44,14 @@ def search_vehicles():
             vehicle["price"] = vehicle["price"][1:]
 
     return jsonify(listings_list)
+
+
+@app.route("/api/makes-models-trims/", methods=["GET"])
+def get_makes_models_trims_route():
+    make = request.args.get("make", None)
+    model = request.args.get("model", None)
+    data = get_makes_models_trims(make=make, model=model)
+    return jsonify(data)
 
 
 if __name__ == "__main__":
