@@ -1,7 +1,15 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	]
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "code-runner.customCommand": "npm start",
+    "code-runner.cwd": "./ksl_cars",
+    "code-runner.clearPreviousOutput": true,
+    "code-runner.saveAllFilesBeforeRun": true,
+    "code-runner.saveFileBeforeRun": true,
+    "terminal.integrated.cwd": "./ksl_cars"
+  }
 }

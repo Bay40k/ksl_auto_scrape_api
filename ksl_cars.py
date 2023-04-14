@@ -28,7 +28,9 @@ def get_makes_models_trims(make: str = None, model: str = None) -> list:
     """
     headers = {"Content-Type": "application/json"}
     data = {"endpoint": "/classifieds/cars/category/getTrimsForMakeModel"}
-    page = requests.post(f"https://cars.ksl.com/nextjs-api/proxy", headers=headers, json=data)
+    page = requests.post(
+        f"https://cars.ksl.com/nextjs-api/proxy", headers=headers, json=data
+    )
     cars = page.json()["data"]
 
     # return models if make defined
@@ -71,7 +73,7 @@ def ksl_cars_search(keyword: str = None, filters: dict = None, page: int = 1) ->
         "keyword",
         "fuel",
         "drive",
-        "titleType"
+        "titleType",
     ]
 
     # add filter to filter_array if it exists
@@ -83,14 +85,14 @@ def ksl_cars_search(keyword: str = None, filters: dict = None, page: int = 1) ->
     headers = {"Content-Type": "application/json"}
     data = {
         "endpoint": "/classifieds/cars/search/searchByUrlParams",
-        "options": {
-            "body": ["page", f"{page}"]
-        }
+        "options": {"body": ["page", f"{page}"]},
     }
 
     # add filters to data
     data["options"]["body"].extend(filter_array)
-    page = requests.post(f"https://cars.ksl.com/nextjs-api/proxy", headers=headers, json=data)
+    page = requests.post(
+        f"https://cars.ksl.com/nextjs-api/proxy", headers=headers, json=data
+    )
     car_listings = page.json()["data"]["items"]
 
     all_listings = dict()
@@ -99,42 +101,31 @@ def ksl_cars_search(keyword: str = None, filters: dict = None, page: int = 1) ->
         make = listing["make"]
         model = listing["model"]
 
-        try:
-            trim = listing["trim"]
-        except KeyError:
-            trim = None
-
+        trim = listing.get("trim")
         title = f"{year} {make} {model}"
         if trim:
             title += f" {trim}"
 
-        try:
-            transmission = listing["transmission"]
-        except KeyError:
-            transmission = None
+        transmission = listing.get("transmission")
+        fuel = listing.get("fuel")
+        title_type = listing.get("titleType")
 
-        try:
-            fuel = listing["fuel"]
-        except KeyError:
-            fuel = None
+        city = listing.get("city")
+        state = listing.get("state")
+        location = f"{city}, {state}" if city and state else None
 
-        try:
-            title_type = listing["titleType"]
-        except KeyError:
-            title_type = None
+        price = f"${listing.get('price')}"
+        miles = listing.get("mileage")
+        vin = listing.get("vin")
+        body_type = listing.get("body")
+        link = f"https://cars.ksl.com/listing/{listing['id']}"
+        seller_type = listing.get("sellerType")
+        new_or_used = listing.get("newUsed")
 
-        price        = f"${listing['price']}"
-        miles        = listing["mileage"]
-        location     = f"{listing['city']}, {listing['state']}"
-        vin          = listing["vin"]
-        body_type    = listing["body"]
-        link         = f"https://cars.ksl.com/listing/{listing['id']}"
-        seller_type  = listing["sellerType"]
-        new_or_used  = listing["newUsed"]
-
-        timestamp = listing["displayTime"]
-        time_created = datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-
+        timestamp = listing.get("displayTime")
+        time_created = datetime.utcfromtimestamp(timestamp).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
 
         listing_dict = {
             "listing_title": title,
@@ -154,7 +145,7 @@ def ksl_cars_search(keyword: str = None, filters: dict = None, page: int = 1) ->
             "seller_type": seller_type,
             "title_type": title_type,
             "time_created_utc": time_created,
-            "unix_timestamp": timestamp
+            "unix_timestamp": timestamp,
         }
         all_listings[i] = listing_dict
 

@@ -1,36 +1,90 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import VehiclesList from './VehiclesList';
+import FilterForm from './FilterForm';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
 const App = () => {
-  const vehicles = [
-    {
-      listing_title: '1998 Toyota Tacoma',
-      year: 1998,
-      make: 'Toyota',
-      model: 'Tacoma',
-      trim: null,
-      price: '$4900',
-      miles: 274,
-      new_or_used: 'Used',
-      location: 'West Valley City, UT',
-      vin: '4TANL42N0WZ023422',
-      body_type: 'Truck',
-      fuel_type: 'Gasoline',
-      transmission: 'Manual',
-      link: 'https://cars.ksl.com/listing/8434285',
-      seller_type: 'For Sale By Owner',
-      title_type: 'Clean Title',
-      time_created_utc: '2023-03-12 23:30:11',
-      unix_timestamp: 1678663811,
-    },
-    // ...more vehicle objects
-  ];
+  const [vehicles, setVehicles] = useState([]);
+  const [filters, setFilters] = useState({
+    listing_title: '',
+    year: '',
+    make: '',
+    model: '',
+    trim: '',
+    priceFrom: '',
+    priceTo: '',
+    miles: '',
+    newUsed: '',
+    location: '',
+    vin: '',
+    body_type: '',
+    fuel: '',
+    transmission: '',
+    sellerType: '',
+    titleType: '',
+    mileageFrom: '',
+    mileageTo: '',
+    drive: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        setIsLoading(true);
+        const query = Object.entries(filters)
+          .filter(([_, value]) => value !== '')
+          .map(([key, value]) => `${key}=${value}`)
+          .join('&');
+
+        const response = await fetch(`http://127.0.0.1:4000/api/?${query}`);
+        const data = await response.json();
+        setVehicles(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching vehicles:', error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchVehicles();
+  }, [filters]);
+
+  const handleFilterSubmit = (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const newFilters = {};
+
+    for (const [name, value] of formData) {
+      newFilters[name] = value;
+    }
+
+    setFilters(newFilters);
+  };
 
   return (
-    <div className="App">
-      <h1>Vehicle Listings</h1>
-      <VehiclesList vehicles={vehicles} />
-    </div>
+    <Container maxWidth="lg">
+      <Typography variant="h3" component="h1" gutterBottom>
+        Vehicle Listings
+      </Typography>
+      <form onSubmit={handleFilterSubmit}>
+      <FilterForm filters={filters} setFilters={setFilters} />
+        <button type="submit">Apply Filters</button>
+      </form>
+      {isLoading ? (
+        <Typography variant="body1" component="p">
+          Loading...
+        </Typography>
+      ) : vehicles.length > 0 ? (
+        <VehiclesList vehicles={vehicles} />
+      ) : (
+        <Typography variant="body1" component="p">
+          No vehicles found.
+        </Typography>
+      )}
+    </Container>
   );
 };
 

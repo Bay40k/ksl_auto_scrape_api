@@ -1,0 +1,8 @@
+{
+  "code-runner.customCommand": "npm start",
+  "code-runner.clearPreviousOutput": true,
+  "code-runner.cwd": "./ksl_cars",
+  "code-runner.runInTerminal": true,
+  "code-runner.saveAllFilesBeforeRun": true,
+  "terminal.integrated.cwd": "./ksl_cars"
+}
