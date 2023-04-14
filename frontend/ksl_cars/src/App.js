@@ -20,9 +20,10 @@ const App = () => {
     try {
       const queryParams = new URLSearchParams(filters);
       queryParams.append("page", page);
-
+      setIsLoading(true);
       const response = await fetch(`/api/?${queryParams}`);
       const data = await response.json();
+      setIsLoading(false);
       setVehicles(data);
     } catch (error) {
       console.error('Error fetching vehicles:', error);
