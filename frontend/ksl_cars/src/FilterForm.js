@@ -4,7 +4,15 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
-import { FormControl, InputLabel, Select, ButtonGroup } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  ButtonGroup,
+  Card,
+  CardContent,
+  Typography,
+} from "@mui/material";
 
 const FilterForm = ({
   filters,
@@ -13,6 +21,7 @@ const FilterForm = ({
   handleNextPage,
   handlePrevPage,
   page,
+  hasMoreListings
 }) => {
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
@@ -172,85 +181,100 @@ const FilterForm = ({
     <Box component="form" onSubmit={handleFilterSubmit} sx={{ mt: 2, mb: 4 }}>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Make", "make", makes, true)}
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Vehicle
+              </Typography>
+              {renderSelectField("Make", "make", makes, true)}
+              {renderSelectField(
+                "Model",
+                "model",
+                models.map((model) => model.name),
+                true
+              )}
+              {renderSelectField("Trim", "trim", trims, true)}
+            </CardContent>
+          </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField(
-            "Model",
-            "model",
-            models.map((model) => model.name),
-            true
-          )}
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Year & Price
+              </Typography>
+              {renderTextField("Year From", "yearFrom")}
+              {renderTextField("Year To", "yearTo")}
+              {renderTextField("Price From", "priceFrom")}
+              {renderTextField("Price To", "priceTo")}
+            </CardContent>
+          </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Trim", "trim", trims, true)}
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Mileage & Seller
+              </Typography>
+              {renderTextField("Mileage From", "mileageFrom")}
+              {renderTextField("Mileage To", "mileageTo")}
+              {renderSelectField("Seller Type", "sellerType", [
+                "For Sale By Owner",
+                "Dealership",
+              ])}
+            </CardContent>
+          </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          {renderTextField("Year From", "yearFrom")}
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Vehicle Details
+              </Typography>
+              {renderSelectField("New or Used", "newUsed", [
+                "Used",
+                "New",
+                "Certified",
+              ])}
+              {renderSelectField("Transmission", "transmission", [
+                "Automatic",
+                "Manual",
+                "CVT",
+                "Automanual",
+              ])}
+              {renderSelectField("Fuel Type", "fuel", [
+                "Compressed Natural Gas",
+                "Diesel",
+                "Electric",
+                "Flex Fuel",
+                "Gasoline",
+                "Hybrid",
+              ])}
+            </CardContent>
+          </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          {renderTextField("Year To", "yearTo")}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderTextField("Price From", "priceFrom")} {/* Updated label */}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderTextField("Price To", "priceTo")} {/* New field */}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderTextField("Mileage From", "mileageFrom")} {/* New field */}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderTextField("Mileage To", "mileageTo")} {/* New field */}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Seller Type", "sellerType", [
-            "For Sale By Owner",
-            "Dealership",
-          ])}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("New or Used", "newUsed", [
-            "Used",
-            "New",
-            "Certified",
-          ])}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Transmission", "transmission", [
-            "Automatic",
-            "Manual",
-            "CVT",
-            "Automanual",
-          ])}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Fuel Type", "fuel", [
-            "Compressed Natural Gas",
-            "Diesel",
-            "Electric",
-            "Flex Fuel",
-            "Gasoline",
-            "Hybrid",
-          ])}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Drive", "drive", [
-            "2-Wheel Drive",
-            "4-Wheel Drive",
-            "AWD",
-            "FWD",
-            "RWD",
-          ])}
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Title Type", "titleType", [
-            "Clean Title",
-            "Dismantled Title",
-            "Not Specified",
-            "Rebuilt/Reconstructed Title",
-            "Salvage Title",
-          ])}
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Drive & Title
+              </Typography>
+              {renderSelectField("Drive", "drive", [
+                "2-Wheel Drive",
+                "4-Wheel Drive",
+                "AWD",
+                "FWD",
+                "RWD",
+              ])}
+              {renderSelectField("Title Type", "titleType", [
+                "Clean Title",
+                "Dismantled Title",
+                "Not Specified",
+                "Rebuilt/Reconstructed Title",
+                "Salvage Title",
+              ])}
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
       <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
@@ -266,7 +290,12 @@ const FilterForm = ({
           <Button type="submit" variant="contained" color="primary">
             Apply Filters
           </Button>
-          <Button onClick={handleNextPage} variant="contained" color="primary">
+          <Button
+            onClick={handleNextPage}
+            variant="contained"
+            color="primary"
+            disabled={!hasMoreListings}
+          >
             Next
           </Button>
         </ButtonGroup>

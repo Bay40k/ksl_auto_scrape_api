@@ -10,11 +10,11 @@ const App = () => {
   const [filters, setFilters] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [hasMoreListings, setHasMoreListings] = useState(true);
 
   useEffect(() => {
     fetchVehicles();
   }, [page]);
-
 
   const fetchVehicles = async (updatedFilters = filters) => {
     try {
@@ -25,13 +25,16 @@ const App = () => {
       const data = await response.json();
       setIsLoading(false);
       setVehicles(data);
+      setHasMoreListings(data.length > 0);
     } catch (error) {
-      console.error('Error fetching vehicles:', error);
+      console.error("Error fetching vehicles:", error);
     }
-  };  
+  };
 
   const handleNextPage = () => {
-    setPage((prevPage) => prevPage + 1);
+    if (hasMoreListings) {
+      setPage((prevPage) => prevPage + 1);
+    }
   };
 
   const handlePrevPage = () => {
@@ -51,6 +54,7 @@ const App = () => {
           handleNextPage={handleNextPage}
           handlePrevPage={handlePrevPage}
           page={page}
+          hasMoreListings={hasMoreListings}
         />
         {isLoading ? (
           <Typography variant="body1" component="p">
