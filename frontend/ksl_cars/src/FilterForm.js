@@ -108,7 +108,7 @@ const FilterForm = ({
               `/api/makes-models-trims/?make=${make}`
             );
             const data = await response.json();
-            return data;
+            return data.map((model) => ({ make, name: model }));
           })
         );
 
@@ -175,7 +175,12 @@ const FilterForm = ({
           {renderSelectField("Make", "make", makes, true)}
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          {renderSelectField("Model", "model", models, true)}
+          {renderSelectField(
+            "Model",
+            "model",
+            models.map((model) => model.name),
+            true
+          )}
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           {renderSelectField("Trim", "trim", trims, true)}
