@@ -1,40 +1,41 @@
 import React, { useState, useEffect } from "react";
+import { useQuery } from "react-query";
 import VehiclesList from "./VehiclesList";
 import FilterForm from "./FilterForm";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const fetchVehicles = async ({ queryKey }) => {
+  const [, filters, page, shouldFetch] = queryKey;
+  const queryParams = new URLSearchParams(filters);
+  queryParams.append("page", page);
+  const response = await fetch(`/api/?${queryParams}`);
+  const data = await response.json();
+  return data;
+};
 
 const App = () => {
-  const [vehicles, setVehicles] = useState([]);
   const [filters, setFilters] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [hasMoreListings, setHasMoreListings] = useState(true);
 
-  useEffect(() => {
-    fetchVehicles();
-  }, [page]);
+  const {
+    data: vehicles,
+    isLoading,
+    refetch,
+  } = useQuery(["vehicles", filters, page], fetchVehicles, {
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+  });
 
-  const fetchVehicles = async (updatedFilters = filters) => {
-    try {
-      const queryParams = new URLSearchParams(updatedFilters);
-      queryParams.append("page", page);
-      setIsLoading(true);
-      const response = await fetch(`/api/?${queryParams}`);
-      const data = await response.json();
-      setIsLoading(false);
-      setVehicles(data);
-      setHasMoreListings(data.length > 0);
-    } catch (error) {
-      console.error("Error fetching vehicles:", error);
-    }
+  const handleFilterSubmit = (event) => {
+    event.preventDefault();
+    setPage(1);
   };
 
   const handleNextPage = () => {
-    if (hasMoreListings) {
-      setPage((prevPage) => prevPage + 1);
-    }
+    setPage((prevPage) => prevPage + 1);
   };
 
   const handlePrevPage = () => {
@@ -50,17 +51,17 @@ const App = () => {
         <FilterForm
           filters={filters}
           setFilters={setFilters}
-          fetchVehicles={fetchVehicles}
+          handleFilterSubmit={handleFilterSubmit}
           handleNextPage={handleNextPage}
           handlePrevPage={handlePrevPage}
           page={page}
-          hasMoreListings={hasMoreListings}
+          hasMoreListings={vehicles?.length > 0}
         />
         {isLoading ? (
           <Typography variant="body1" component="p">
             Loading...
           </Typography>
-        ) : vehicles.length > 0 ? (
+        ) : vehicles?.length > 0 ? (
           <VehiclesList vehicles={vehicles} />
         ) : (
           <Typography variant="body1" component="p">
@@ -72,4 +73,12 @@ const App = () => {
   );
 };
 
-export default App;
+const queryClient = new QueryClient();
+
+const AppWithQueryClientProvider = () => (
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+);
+
+export default AppWithQueryClientProvider;

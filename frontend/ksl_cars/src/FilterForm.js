@@ -4,24 +4,25 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
+import Slider from "@mui/material/Slider";
 import {
   FormControl,
   InputLabel,
   Select,
   ButtonGroup,
-  Card,
   CardContent,
+  Card,
   Typography,
 } from "@mui/material";
 
 const FilterForm = ({
   filters,
   setFilters,
-  fetchVehicles,
+  handleFilterSubmit,
   handleNextPage,
   handlePrevPage,
   page,
-  hasMoreListings
+  hasMoreListings,
 }) => {
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
@@ -34,27 +35,11 @@ const FilterForm = ({
       setSelectedModels(value);
     }
   };
-
-  const handleFilterSubmit = (event) => {
-    event.preventDefault();
-
-    const updatedFilters = { ...filters };
-    const arrayFields = ["make", "model", "trim"];
-
-    arrayFields.forEach((field) => {
-      if (updatedFilters[field]) {
-        updatedFilters[field] = updatedFilters[field].join(";");
-      }
-    });
-
-    fetchVehicles(updatedFilters);
-  };
-
   const renderTextField = (label, name) => (
     <TextField
       label={label}
       name={name}
-      value={filters[name]}
+      value={filters[name] || ""}
       onChange={handleFilterChange}
       variant="outlined"
       size="small"
@@ -81,6 +66,7 @@ const FilterForm = ({
           </MenuItem>
         ))}
       </Select>
+      <Box paddingTop={1} />
     </FormControl>
   );
 
@@ -88,6 +74,13 @@ const FilterForm = ({
   const [models, setModels] = useState([]);
   const [trims, setTrims] = useState([]);
   const [selectedModels, setSelectedModels] = useState([]);
+  const minMileage = 0;
+  const maxMileage = 300000;
+  const minPrice = 1000;
+  const maxPrice = 150000;
+  const minYear = 1970;
+  const currentYear = new Date().getFullYear();
+  const maxYear = currentYear;
 
   useEffect(() => {
     setSelectedModels(filters.model);
@@ -171,18 +164,69 @@ const FilterForm = ({
   useEffect(() => {
     setFilters({
       ...filters,
-      make: filters.make || [],
-      model: filters.model || [],
-      trim: filters.trim || [],
     });
   }, []);
 
+  const renderYearSlider = () => (
+    <Slider
+      value={[filters.yearFrom || minYear, filters.yearTo || currentYear]}
+      onChange={(event, newValue) => {
+        setFilters({
+          ...filters,
+          yearFrom: newValue[0],
+          yearTo: newValue[1],
+        });
+      }}
+      valueLabelDisplay="auto"
+      min={minYear}
+      max={maxYear}
+      sx={{ width: "100%" }}
+    />
+  );
+
+  const renderMileageSlider = () => (
+    <Slider
+      value={[
+        filters.mileageFrom || minMileage,
+        filters.mileageTo || maxMileage,
+      ]}
+      onChange={(event, newValue) => {
+        setFilters({
+          ...filters,
+          mileageFrom: newValue[0],
+          mileageTo: newValue[1],
+        });
+      }}
+      valueLabelDisplay="auto"
+      min={minMileage}
+      max={maxMileage}
+      sx={{ width: "100%" }}
+    />
+  );
+
+  const renderPriceSlider = () => (
+    <Slider
+      value={[filters.priceFrom || minPrice, filters.priceTo || maxPrice]}
+      onChange={(event, newValue) => {
+        setFilters({
+          ...filters,
+          priceFrom: newValue[0],
+          priceTo: newValue[1],
+        });
+      }}
+      valueLabelDisplay="auto"
+      min={minPrice}
+      max={maxPrice}
+      sx={{ width: "100%" }}
+    />
+  );
+
   return (
-    <Box component="form" onSubmit={handleFilterSubmit} sx={{ mt: 2, mb: 4 }}>
+    <Box component="form" sx={{ mt: 2, mb: 4 }}>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} md={4}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Vehicle
               </Typography>
@@ -199,25 +243,49 @@ const FilterForm = ({
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Year & Price
               </Typography>
-              {renderTextField("Year From", "yearFrom")}
-              {renderTextField("Year To", "yearTo")}
-              {renderTextField("Price From", "priceFrom")}
-              {renderTextField("Price To", "priceTo")}
+              <Typography>Year Range</Typography>
+              {renderYearSlider()}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  paddingBottom: 1,
+                }}
+              >
+                {renderTextField("Year From", "yearFrom")}
+                {renderTextField("Year To", "yearTo")}
+              </Box>
+              <Typography>Price Range</Typography>
+              {renderPriceSlider()}
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                {renderTextField("Price From", "priceFrom")}
+                {renderTextField("Price To", "priceTo")}
+              </Box>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Mileage & Seller
               </Typography>
-              {renderTextField("Mileage From", "mileageFrom")}
-              {renderTextField("Mileage To", "mileageTo")}
+              <Typography>Mileage Range</Typography>
+              {renderMileageSlider()}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  paddingBottom: 1,
+                }}
+              >
+                {renderTextField("Mileage From", "mileageFrom")}
+                {renderTextField("Mileage To", "mileageTo")}
+              </Box>
               {renderSelectField("Seller Type", "sellerType", [
                 "For Sale By Owner",
                 "Dealership",
@@ -227,7 +295,7 @@ const FilterForm = ({
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Vehicle Details
               </Typography>
@@ -255,7 +323,7 @@ const FilterForm = ({
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <Card>
-            <CardContent>
+            <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Drive & Title
               </Typography>
@@ -287,7 +355,7 @@ const FilterForm = ({
           >
             Previous
           </Button>
-          <Button type="submit" variant="contained" color="primary">
+          <Button onClick={handleFilterSubmit} type="submit" variant="contained" color="primary">
             Apply Filters
           </Button>
           <Button

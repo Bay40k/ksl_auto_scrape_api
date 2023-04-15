@@ -32,7 +32,6 @@ def search_vehicles():
         filter_value = request.args.get(filter_name, None)
         if filter_value:
             filters[filter_name] = filter_value
-    print(filters)
 
     listings = ksl_cars_search(keyword=keyword, filters=filters, page=page)
     if "error" in listings:
