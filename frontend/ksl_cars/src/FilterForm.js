@@ -47,12 +47,57 @@ const FilterForm = ({
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
 
-    if (value.includes("")) {
-      debouncedHandleFilterChange(name, []);
-      setPage(1);
-    } else {
+    if (value === "") {
       debouncedHandleFilterChange(name, value);
       setPage(1);
+    } else {
+      if (name === "yearFrom" || name === "yearTo") {
+        if (name === "yearFrom") {
+          setYearFromText(value);
+        } else {
+          setYearToText(value);
+        }
+        const newValue = [
+          parseInt(yearFromText) || minYear,
+          parseInt(yearToText) || maxYear,
+        ];
+        handleSliderChange("yearFrom", "yearTo", setYearSliderValue, newValue);
+      } else if (name === "mileageFrom" || name === "mileageTo") {
+        if (name === "mileageFrom") {
+          setMileageFromText(value);
+        } else {
+          setMileageToText(value);
+        }
+        const newValue = [
+          parseInt(mileageFromText) || minMileage,
+          parseInt(mileageToText) || maxMileage,
+        ];
+        handleSliderChange(
+          "mileageFrom",
+          "mileageTo",
+          setMileageSliderValue,
+          newValue
+        );
+      } else if (name === "priceFrom" || name === "priceTo") {
+        if (name === "priceFrom") {
+          setPriceFromText(value);
+        } else {
+          setPriceToText(value);
+        }
+        const newValue = [
+          parseInt(priceFromText) || minPrice,
+          parseInt(priceToText) || maxPrice,
+        ];
+        handleSliderChange(
+          "priceFrom",
+          "priceTo",
+          setPriceSliderValue,
+          newValue
+        );
+      } else {
+        debouncedHandleFilterChange(name, value);
+        setPage(1);
+      }
     }
   };
 
@@ -125,6 +170,15 @@ const FilterForm = ({
   const [models, setModels] = useState([]);
   const [trims, setTrims] = useState([]);
   const [selectedModels, setSelectedModels] = useState([]);
+  const [yearFromText, setYearFromText] = useState(filters.yearFrom || "");
+  const [yearToText, setYearToText] = useState(filters.yearTo || "");
+  const [mileageFromText, setMileageFromText] = useState(
+    filters.mileageFrom || ""
+  );
+  const [mileageToText, setMileageToText] = useState(filters.mileageTo || "");
+  const [priceFromText, setPriceFromText] = useState(filters.priceFrom || "");
+  const [priceToText, setPriceToText] = useState(filters.priceTo || "");
+
   const minMileage = 0;
   const maxMileage = 300000;
   const minPrice = 1000;
@@ -311,14 +365,14 @@ const FilterForm = ({
                   paddingBottom: 1,
                 }}
               >
-                {renderTextField("Year From", "yearFrom")}
-                {renderTextField("Year To", "yearTo")}
+                {renderTextField("Year From", "yearFrom", yearFromText, setYearFromText)}
+                {renderTextField("Year To", "yearTo", yearToText, setYearToText)}
               </Box>
               <Typography>Price Range</Typography>
               {renderPriceSlider()}
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                {renderTextField("Price From", "priceFrom")}
-                {renderTextField("Price To", "priceTo")}
+              {renderTextField("Price From", "priceFrom", priceFromText, setPriceFromText)}
+              {renderTextField("Price To", "priceTo", priceToText, setPriceToText)}
               </Box>
             </CardContent>
           </Card>
@@ -336,8 +390,8 @@ const FilterForm = ({
                   paddingBottom: 1,
                 }}
               >
-                {renderTextField("Mileage From", "mileageFrom")}
-                {renderTextField("Mileage To", "mileageTo")}
+                {renderTextField("Mileage From", "mileageFrom", mileageFromText, setMileageFromText)}
+                {renderTextField("Mileage To", "mileageTo", mileageToText, setMileageToText)}
               </Box>
               {renderSelectField("Seller Type", "sellerType", [
                 "For Sale By Owner",
