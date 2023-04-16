@@ -15,6 +15,14 @@ import {
   Typography,
 } from "@mui/material";
 import debounce from "lodash/debounce";
+import DriveEtaIcon from "@mui/icons-material/DriveEta";
+import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import SpeedIcon from "@mui/icons-material/Speed";
+import EvStationIcon from "@mui/icons-material/EvStation";
+import SettingsIcon from "@mui/icons-material/Settings";
+import MergeTypeIcon from "@mui/icons-material/MergeType";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 
 const FilterForm = ({
   filters,
@@ -38,7 +46,7 @@ const FilterForm = ({
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
-  
+
     if (value.includes("")) {
       debouncedHandleFilterChange(name, []);
       setPage(1);
@@ -47,7 +55,6 @@ const FilterForm = ({
       setPage(1);
     }
   };
-  
 
   const debouncedSliderChange = debounce((nameFrom, nameTo, newValue) => {
     setFilters({
@@ -62,6 +69,22 @@ const FilterForm = ({
     debouncedSliderChange(nameFrom, nameTo, newValue);
     setPage(1);
   };
+
+  const renderSectionTitle = (title, IconComponent) => (
+    <Typography variant="h6" gutterBottom>
+      <Box
+        component="span"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 0.5,
+        }}
+      >
+        <IconComponent fontSize="medium" />
+        {title}
+      </Box>
+    </Typography>
+  );
 
   const renderTextField = (label, name) => (
     <TextField
@@ -263,9 +286,7 @@ const FilterForm = ({
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Vehicle
-              </Typography>
+              {renderSectionTitle("Vehicle", DriveEtaIcon)}
               {renderSelectField("Make", "make", makes, true)}
               {renderSelectField(
                 "Model",
@@ -280,9 +301,7 @@ const FilterForm = ({
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Year & Price
-              </Typography>
+              {renderSectionTitle("Year & Price", AttachMoneyIcon)}
               <Typography>Year Range</Typography>
               {renderYearSlider()}
               <Box
@@ -307,9 +326,7 @@ const FilterForm = ({
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Mileage & Seller
-              </Typography>
+              {renderSectionTitle("Mileage & Seller", SpeedIcon)}
               <Typography>Mileage Range</Typography>
               {renderMileageSlider()}
               <Box
@@ -332,20 +349,20 @@ const FilterForm = ({
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Vehicle Details
-              </Typography>
+              {renderSectionTitle("Vehicle Details", EvStationIcon)}
               {renderSelectField("New or Used", "newUsed", [
                 "Used",
                 "New",
                 "Certified",
               ])}
+              {renderSectionTitle("Transmission", SettingsIcon)}
               {renderSelectField("Transmission", "transmission", [
                 "Automatic",
                 "Manual",
                 "CVT",
                 "Automanual",
               ])}
+              {renderSectionTitle("Fuel Type", LocalGasStationIcon)}
               {renderSelectField("Fuel Type", "fuel", [
                 "Compressed Natural Gas",
                 "Diesel",
@@ -360,9 +377,7 @@ const FilterForm = ({
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Drive & Title
-              </Typography>
+              {renderSectionTitle("Drive", MergeTypeIcon)}
               {renderSelectField("Drive", "drive", [
                 "2-Wheel Drive",
                 "4-Wheel Drive",
@@ -370,6 +385,7 @@ const FilterForm = ({
                 "FWD",
                 "RWD",
               ])}
+              {renderSectionTitle("Title Type", DriveFileRenameOutlineIcon)}
               {renderSelectField("Title Type", "titleType", [
                 "Clean Title",
                 "Dismantled Title",
@@ -381,7 +397,14 @@ const FilterForm = ({
           </Card>
         </Grid>
       </Grid>
-      <Box sx={{ mt: 2, display: "flex", justifyContent: "center", paddingBottom: 2 }}>
+      <Box
+        sx={{
+          mt: 2,
+          display: "flex",
+          justifyContent: "center",
+          paddingBottom: 2,
+        }}
+      >
         <ButtonGroup>
           <Button
             onClick={handlePrevPage}
