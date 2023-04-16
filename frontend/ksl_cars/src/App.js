@@ -8,7 +8,7 @@ import Box from "@mui/material/Box";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 const fetchVehicles = async ({ queryKey }) => {
-  const [, filters, page, shouldFetch] = queryKey;
+  const [, filters, page] = queryKey;
   const queryParams = new URLSearchParams(filters);
   queryParams.append("page", page);
   const response = await fetch(`/api/?${queryParams}`);
@@ -27,12 +27,9 @@ const App = () => {
   } = useQuery(["vehicles", filters, page], fetchVehicles, {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 60 * 60 * 1000, // 1 hour
   });
-
-  const handleFilterSubmit = (event) => {
-    event.preventDefault();
-    setPage(1);
-  };
 
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);
@@ -51,10 +48,10 @@ const App = () => {
         <FilterForm
           filters={filters}
           setFilters={setFilters}
-          handleFilterSubmit={handleFilterSubmit}
           handleNextPage={handleNextPage}
           handlePrevPage={handlePrevPage}
           page={page}
+          setPage={setPage}
           hasMoreListings={vehicles?.length > 0}
         />
         {isLoading ? (

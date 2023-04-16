@@ -14,18 +14,18 @@ import {
   Card,
   Typography,
 } from "@mui/material";
+import debounce from "lodash/debounce";
 
 const FilterForm = ({
   filters,
   setFilters,
-  handleFilterSubmit,
   handleNextPage,
   handlePrevPage,
   page,
+  setPage,
   hasMoreListings,
 }) => {
-  const handleFilterChange = (event) => {
-    const { name, value } = event.target;
+  const debouncedHandleFilterChange = debounce((name, value) => {
     setFilters({
       ...filters,
       [name]: value,
@@ -34,7 +34,35 @@ const FilterForm = ({
     if (name === "model") {
       setSelectedModels(value);
     }
+  }, 300);
+
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+  
+    if (value.includes("")) {
+      debouncedHandleFilterChange(name, []);
+      setPage(1);
+    } else {
+      debouncedHandleFilterChange(name, value);
+      setPage(1);
+    }
   };
+  
+
+  const debouncedSliderChange = debounce((nameFrom, nameTo, newValue) => {
+    setFilters({
+      ...filters,
+      [nameFrom]: newValue[0],
+      [nameTo]: newValue[1],
+    });
+  }, 800);
+
+  const handleSliderChange = (nameFrom, nameTo, setValue, newValue) => {
+    setValue(newValue);
+    debouncedSliderChange(nameFrom, nameTo, newValue);
+    setPage(1);
+  };
+
   const renderTextField = (label, name) => (
     <TextField
       label={label}
@@ -81,6 +109,19 @@ const FilterForm = ({
   const minYear = 1970;
   const currentYear = new Date().getFullYear();
   const maxYear = currentYear;
+
+  const [yearSliderValue, setYearSliderValue] = useState([
+    filters.yearFrom || minYear,
+    filters.yearTo || currentYear,
+  ]);
+  const [mileageSliderValue, setMileageSliderValue] = useState([
+    filters.mileageFrom || minMileage,
+    filters.mileageTo || maxMileage,
+  ]);
+  const [priceSliderValue, setPriceSliderValue] = useState([
+    filters.priceFrom || minPrice,
+    filters.priceTo || maxPrice,
+  ]);
 
   useEffect(() => {
     setSelectedModels(filters.model);
@@ -169,14 +210,10 @@ const FilterForm = ({
 
   const renderYearSlider = () => (
     <Slider
-      value={[filters.yearFrom || minYear, filters.yearTo || currentYear]}
-      onChange={(event, newValue) => {
-        setFilters({
-          ...filters,
-          yearFrom: newValue[0],
-          yearTo: newValue[1],
-        });
-      }}
+      value={yearSliderValue}
+      onChange={(event, newValue) =>
+        handleSliderChange("yearFrom", "yearTo", setYearSliderValue, newValue)
+      }
       valueLabelDisplay="auto"
       min={minYear}
       max={maxYear}
@@ -186,17 +223,15 @@ const FilterForm = ({
 
   const renderMileageSlider = () => (
     <Slider
-      value={[
-        filters.mileageFrom || minMileage,
-        filters.mileageTo || maxMileage,
-      ]}
-      onChange={(event, newValue) => {
-        setFilters({
-          ...filters,
-          mileageFrom: newValue[0],
-          mileageTo: newValue[1],
-        });
-      }}
+      value={mileageSliderValue}
+      onChange={(event, newValue) =>
+        handleSliderChange(
+          "mileageFrom",
+          "mileageTo",
+          setMileageSliderValue,
+          newValue
+        )
+      }
       valueLabelDisplay="auto"
       min={minMileage}
       max={maxMileage}
@@ -206,14 +241,15 @@ const FilterForm = ({
 
   const renderPriceSlider = () => (
     <Slider
-      value={[filters.priceFrom || minPrice, filters.priceTo || maxPrice]}
-      onChange={(event, newValue) => {
-        setFilters({
-          ...filters,
-          priceFrom: newValue[0],
-          priceTo: newValue[1],
-        });
-      }}
+      value={priceSliderValue}
+      onChange={(event, newValue) =>
+        handleSliderChange(
+          "priceFrom",
+          "priceTo",
+          setPriceSliderValue,
+          newValue
+        )
+      }
       valueLabelDisplay="auto"
       min={minPrice}
       max={maxPrice}
@@ -222,10 +258,10 @@ const FilterForm = ({
   );
 
   return (
-    <Box component="form" sx={{ mt: 2, mb: 4 }}>
-      <Grid container spacing={2}>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Grid container spacing={2} sx={{ flexGrow: 1 }}>
         <Grid item xs={12} sm={6} md={4}>
-          <Card>
+          <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Vehicle
@@ -242,7 +278,7 @@ const FilterForm = ({
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <Card>
+          <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Year & Price
@@ -269,7 +305,7 @@ const FilterForm = ({
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <Card>
+          <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Mileage & Seller
@@ -294,7 +330,7 @@ const FilterForm = ({
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <Card>
+          <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Vehicle Details
@@ -322,7 +358,7 @@ const FilterForm = ({
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <Card>
+          <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Drive & Title
@@ -345,7 +381,7 @@ const FilterForm = ({
           </Card>
         </Grid>
       </Grid>
-      <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+      <Box sx={{ mt: 2, display: "flex", justifyContent: "center", paddingBottom: 2 }}>
         <ButtonGroup>
           <Button
             onClick={handlePrevPage}
@@ -354,9 +390,6 @@ const FilterForm = ({
             disabled={page === 1}
           >
             Previous
-          </Button>
-          <Button onClick={handleFilterSubmit} type="submit" variant="contained" color="primary">
-            Apply Filters
           </Button>
           <Button
             onClick={handleNextPage}

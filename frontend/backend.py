@@ -33,6 +33,15 @@ def search_vehicles():
         if filter_value:
             filters[filter_name] = filter_value
 
+    if filters.get("make"):
+        filters["make"] = semicolonize(filters["make"].split(","))
+
+    if filters.get("model"):
+        filters["model"] = semicolonize(filters["model"].split(","))
+
+    if filters.get("trim"):
+        filters["trim"] = semicolonize(filters["trim"].split(","))
+
     listings = ksl_cars_search(keyword=keyword, filters=filters, page=page)
     if "error" in listings:
         return jsonify({"error": listings["error"]})
