@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
-import Slider from "@mui/material/Slider";
+import Slider from "./Slider";
 import {
   FormControl,
   InputLabel,
@@ -153,7 +153,10 @@ const FilterForm = ({
         onChange={handleFilterChange}
         multiple={multiple}
       >
-        <MenuItem value="">
+        <MenuItem
+          value=""
+          onClick={() => setFilters((prev) => ({ ...prev, name: [] }))}
+        >
           <em>None</em>
         </MenuItem>
         {options.map((option) => (
@@ -287,10 +290,11 @@ const FilterForm = ({
 
   const renderYearSlider = () => (
     <Slider
+      label="Year Range"
+      minLabel="Year From"
+      maxLabel="Year To"
       value={yearSliderValue}
-      onChange={(event, newValue) =>
-        handleSliderChange("yearFrom", "yearTo", setYearSliderValue, newValue)
-      }
+      onChange={setYearSliderValue}
       valueLabelDisplay="auto"
       min={minYear}
       max={maxYear}
@@ -300,15 +304,11 @@ const FilterForm = ({
 
   const renderMileageSlider = () => (
     <Slider
+      label="Mileage Range"
+      minLabel="Mileage From"
+      maxLabel="Mileage To"
       value={mileageSliderValue}
-      onChange={(event, newValue) =>
-        handleSliderChange(
-          "mileageFrom",
-          "mileageTo",
-          setMileageSliderValue,
-          newValue
-        )
-      }
+      onChange={setMileageSliderValue}
       valueLabelDisplay="auto"
       min={minMileage}
       max={maxMileage}
@@ -318,21 +318,34 @@ const FilterForm = ({
 
   const renderPriceSlider = () => (
     <Slider
+      label="Price Range"
+      minLabel="Price From"
+      maxLabel="Price To"
       value={priceSliderValue}
-      onChange={(event, newValue) =>
-        handleSliderChange(
-          "priceFrom",
-          "priceTo",
-          setPriceSliderValue,
-          newValue
-        )
-      }
+      onChange={setPriceSliderValue}
       valueLabelDisplay="auto"
       min={minPrice}
       max={maxPrice}
       sx={{ width: "100%" }}
     />
   );
+
+  const debounceSetFilters = useCallback(
+    debounce((filters) => setFilters(filters), 500),
+    []
+  );
+
+  useEffect(() => {
+    debounceSetFilters({
+      ...filters,
+      yearFrom: yearSliderValue[0],
+      yearTo: yearSliderValue[1],
+      mileageFrom: mileageSliderValue[0],
+      mileageTo: mileageSliderValue[1],
+      priceFrom: priceSliderValue[0],
+      priceTo: priceSliderValue[1],
+    });
+  }, [yearSliderValue, mileageSliderValue, priceSliderValue]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -356,7 +369,6 @@ const FilterForm = ({
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
               {renderSectionTitle("Year & Price", AttachMoneyIcon)}
-              <Typography>Year Range</Typography>
               {renderYearSlider()}
               <Box
                 sx={{
@@ -364,16 +376,11 @@ const FilterForm = ({
                   justifyContent: "space-between",
                   paddingBottom: 1,
                 }}
-              >
-                {renderTextField("Year From", "yearFrom", yearFromText, setYearFromText)}
-                {renderTextField("Year To", "yearTo", yearToText, setYearToText)}
-              </Box>
-              <Typography>Price Range</Typography>
+              ></Box>
               {renderPriceSlider()}
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              {renderTextField("Price From", "priceFrom", priceFromText, setPriceFromText)}
-              {renderTextField("Price To", "priceTo", priceToText, setPriceToText)}
-              </Box>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between" }}
+              ></Box>
             </CardContent>
           </Card>
         </Grid>
@@ -381,7 +388,6 @@ const FilterForm = ({
           <Card sx={{ height: "100%" }}>
             <CardContent sx={{ padding: 3 }}>
               {renderSectionTitle("Mileage & Seller", SpeedIcon)}
-              <Typography>Mileage Range</Typography>
               {renderMileageSlider()}
               <Box
                 sx={{
@@ -389,10 +395,7 @@ const FilterForm = ({
                   justifyContent: "space-between",
                   paddingBottom: 1,
                 }}
-              >
-                {renderTextField("Mileage From", "mileageFrom", mileageFromText, setMileageFromText)}
-                {renderTextField("Mileage To", "mileageTo", mileageToText, setMileageToText)}
-              </Box>
+              ></Box>
               {renderSelectField("Seller Type", "sellerType", [
                 "For Sale By Owner",
                 "Dealership",
